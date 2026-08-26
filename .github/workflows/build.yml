@@ -1,5 +1,12 @@
 name: Build IraqAI APK
+<<<<<<< HEAD
 on: [push, workflow_dispatch]
+=======
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+>>>>>>> b2f9fa9 (اضافة بناء APK تلقائي)
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,7 +20,11 @@ jobs:
         with:
           flutter-version: '3.19.0'
       - run: flutter pub get
+<<<<<<< HEAD
       - run: flutter build apk --release
+=======
+      - run: flutter build apk --release --no-tree-shake-icons
+>>>>>>> b2f9fa9 (اضافة بناء APK تلقائي)
       - uses: actions/upload-artifact@v4
         with:
           name: iraqai-apk
