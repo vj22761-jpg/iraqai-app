@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+cd /workspaces/iraqai-app
+mkdir -p lib/screens lib/services lib/models functions
+export PATH="$PATH:`pwd`/flutter/bin"
+flutter pub get
+ls -R lib
