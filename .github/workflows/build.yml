@@ -9,69 +9,47 @@ jobs:
         with: {distribution: 'zulu', java-version: '17'}
       - uses: subosito/flutter-action@v2
         with: {flutter-version: '3.22.2'}
-      - name: Rebuild full IraqAI App
+      - name: Build Full App
         run: |
           rm -rf android
-          flutter create . --platforms=android --project-name iraqai_chat
-          # اضافة صلاحية الانترنت
-          sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET" \/>\n    <application/' android/app/src/main/AndroidManifest.xml
-          mkdir -p lib
+          flutter create. --platforms=android --project-name iraqai_chat
+          sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET" \/>\n <application/' android/app/src/main/AndroidManifest.xml
           cat > lib/main.dart << 'DART'
           import 'package:flutter/material.dart';
           import 'package:google_generative_ai/google_generative_ai.dart';
           const GEMINI_API_KEY = String.fromEnvironment('GEMINI_API_KEY', defaultValue: '');
           void main()=>runApp(const IraqAIApp());
-          class IraqAIApp extends StatelessWidget{
-            const IraqAIApp({super.key});
-            @override Widget build(BuildContext c)=>MaterialApp(debugShowCheckedModeBanner:false,theme:ThemeData.dark().copyWith(scaffoldBackgroundColor:const Color(0xFF0A0A12)),home:const ChatPage());
+          class IraqAIApp extends StatelessWidget{const IraqAIApp({super.key});@override Widget build(BuildContext c)=>MaterialApp(debugShowCheckedModeBanner:false,theme:ThemeData.dark().copyWith(scaffoldBackgroundColor:const Color(0xFF0A0A12)),home:const MainNav());}
+          class MainNav extends StatefulWidget{const MainNav({super.key});@override State<MainNav> createState()=>_N();}
+          class _N extends State<MainNav>{
+            int idx=0;
+            final pages=[const HomePage(), const ChatFull(), const EarnPage(), const ProfilePage()];
+            @override Widget build(BuildContext c)=>Scaffold(
+              body: pages[idx],
+              bottomNavigationBar: BottomNavigationBar(currentIndex:idx,onTap:(i)=>setState(()=>idx=i),backgroundColor:const Color(0xFF1A1A2E),selectedItemColor:Colors.deepPurpleAccent,unselectedItemColor:Colors.white54,type:BottomNavigationBarType.fixed,
+                items:const [BottomNavigationBarItem(icon:Icon(Icons.home),label:'الرئيسية'),BottomNavigationBarItem(icon:Icon(Icons.chat_bubble),label:'دردشة'),BottomNavigationBarItem(icon:Icon(Icons.monetization_on),label:'أرباح'),BottomNavigationBarItem(icon:Icon(Icons.person),label:'حسابي')])
+            );
           }
-          class ChatPage extends StatefulWidget{const ChatPage({super.key});@override State<ChatPage> createState()=>_Chat();}
-          class _Chat extends State<ChatPage>{
+          class HomePage extends StatelessWidget{const HomePage({super.key});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(backgroundColor:const Color(0xFF1A1A2E),title:Row(children:[Container(padding:const EdgeInsets.all(6),decoration:BoxDecoration(color:Colors.deepPurple,borderRadius:BorderRadius.circular(10)),child:const Text('🇮🇶')),const SizedBox(width:8),const Text('IraqAI Chat+')]),actions:[Container(margin:const EdgeInsets.all(12),padding:const EdgeInsets.symmetric(horizontal:10,vertical:4),decoration:BoxDecoration(color:Colors.green.withOpacity(0.2),borderRadius:BorderRadius.circular(20)),child:const Row(children:[Icon(Icons.circle,color:Colors.green,size:10),SizedBox(width:4),Text('Online')]))]),body:ListView(padding:const EdgeInsets.all(16),children:[Container(padding:const EdgeInsets.all(20),decoration:BoxDecoration(gradient:const LinearGradient(colors:[Color(0xFF6D28D9),Color(0xFF7C3AED)]),borderRadius:BorderRadius.circular(20)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[const Text('هلا إبراهيم! 👋',style:TextStyle(fontSize:22,fontWeight:FontWeight.bold)),const SizedBox(height:8),const Text('شلونك اليوم؟ انا جاهز اساعدك',style:TextStyle(color:Colors.white70)),const SizedBox(height:12),Row(children:[Chip(label:const Text('💬 ذكاء عراقي')),const SizedBox(width:8),Chip(label:const Text('🎨 توليد صور'))])])),const SizedBox(height:16), GridView.count(shrinkWrap:true,physics:const NeverScrollableScrollPhysics(),crossAxisCount:2,childAspectRatio:1.2,crossAxisSpacing:12,mainAxisSpacing:12,children:[_card(Icons.chat,'دردشة ذكية','احجي ويا AI عراقي'),_card(Icons.image,'توليد صور','سوي صور بذكاء'),_card(Icons.translate,'ترجمة فورية','انكليزي-عربي'),_card(Icons.lightbulb,'افكار','مشاريع ودراسة')])]));}
+          Widget _card(IconData ic,String t,String d)=>Container(padding:const EdgeInsets.all(16),decoration:BoxDecoration(color:const Color(0xFF1E1E2A),borderRadius:BorderRadius.circular(18),border:Border.all(color:Colors.white10)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Icon(ic,color:Colors.deepPurpleAccent,size:30),const Spacer(),Text(t,style:const TextStyle(fontWeight:FontWeight.bold)),const SizedBox(height:4),Text(d,style:const TextStyle(fontSize:12,color:Colors.white54))]));
+          class ChatFull extends StatefulWidget{const ChatFull({super.key});@override State<ChatFull> createState()=>_ChatFull();}
+          class _ChatFull extends State<ChatFull>{
             final ctrl=TextEditingController();
-            final List<Map<String,String>> msgs=[{"role":"ai","text":"هلا والله إبراهيم! 🇮🇶\nأنا IraqAI Chat+ النسخة المطورة\nاحجيلي عراقي واني اجاوبك عراقي أصلي"}];
+            final msgs=[{"role":"ai","text":"هلا والله إبراهيم! 🇮🇶 انا IraqAI Chat+ المطور\nاحجيلي عراقي اصلي واني اجاوبك"}];
             bool loading=false; late ChatSession chat;
-            @override void initState(){
-              super.initState();
-              final model=GenerativeModel(model:'gemini-1.5-flash',apiKey:GEMINI_API_KEY.isEmpty?'AIzaSyDummy':GEMINI_API_KEY,
-                systemInstruction:Content.text('انت مساعد عراقي ذكي، اسمك IraqAI، تحجي لهجة بغدادية عامية، تكون مضحك ومفيد، تجاوب بالعربي العراقي دائما، تستخدم ايموجي'));
-              chat=model.startChat();
-            }
-            void send() async{
-              if(ctrl.text.trim().isEmpty) return;
-              final q=ctrl.text; setState((){msgs.add({"role":"user","text":q}); loading=true;}); ctrl.clear();
-              try{
-                final r=await chat.sendMessage(Content.text(q));
-                setState(()=>msgs.add({"role":"ai","text":r.text??'ما كدرت اجاوب'}));
-              }catch(e){
-                String err=e.toString();
-                if(err.contains('host lookup')||err.contains('Socket')){
-                  setState(()=>msgs.add({"role":"ai","text":"📵 ماكو انترنت! شغل النت او الواي فاي وحاول مرة ثانية حبيبي إبراهيم"}));
-                }else{
-                  setState(()=>msgs.add({"role":"ai","text":"خطأ: $e\nتأكد من مفتاح GEMINI بالـ Secrets"}));
-                }
-              }
-              setState(()=>loading=false);
-            }
-            @override Widget build(BuildContext c){
-              return Scaffold(
-                appBar:AppBar(backgroundColor:const Color(0xFF1A1A2E),title:Row(children:[Container(padding:const EdgeInsets.all(8),decoration:BoxDecoration(color:Colors.deepPurple,borderRadius:BorderRadius.circular(12)),child:const Text('🇮🇶',style:TextStyle(fontSize:20))),const SizedBox(width:10),const Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('IraqAI Chat+',style:TextStyle(fontWeight:FontWeight.bold)),Text('Live Gemini • يحجي عراقي',style:TextStyle(fontSize:11,color:Colors.greenAccent))])]),actions:[Container(margin:const EdgeInsets.only(right:12),padding:const EdgeInsets.symmetric(horizontal:10,vertical:4),decoration:BoxDecoration(color:Colors.green.withOpacity(0.2),borderRadius:BorderRadius.circular(20)),child:const Row(children:[Icon(Icons.circle,color:Colors.green,size:10),SizedBox(width:4),Text('Online',style:TextStyle(fontSize:12))]))]),
-                body:Column(children:[
-                  Expanded(child:ListView.builder(padding:const EdgeInsets.all(16),itemCount:msgs.length,itemBuilder:(c,i){
-                    final m=msgs[i];final isU=m['role']=='user';
-                    return Align(alignment:isU?Alignment.centerRight:Alignment.centerLeft,child:Container(margin:const EdgeInsets.symmetric(vertical:6),padding:const EdgeInsets.symmetric(horizontal:16,vertical:12),constraints:BoxConstraints(maxWidth:MediaQuery.of(c).size.width*0.8),decoration:BoxDecoration(color:isU?Colors.deepPurple:const Color(0xFF1E1E2A),borderRadius:BorderRadius.only(topLeft:const Radius.circular(18),topRight:const Radius.circular(18),bottomLeft:Radius.circular(isU?18:4),bottomRight:Radius.circular(isU?4:18)),boxShadow:[BoxShadow(color:Colors.black26,blurRadius:4)]),child:Text(m['text']!,style:const TextStyle(fontSize:15,height:1.4))));
-                  })),
-                  if(loading) Padding(padding:const EdgeInsets.all(8),child:Row(children:[const SizedBox(width:16),const SizedBox(width:20,height:20,child:CircularProgressIndicator(strokeWidth:2)),const SizedBox(width:12),Text('IraqAI ديكتب...',style:TextStyle(color:Colors.white.withOpacity(0.6)))])),
-                  Container(padding:const EdgeInsets.all(12),decoration:const BoxDecoration(color:Color(0xFF151528),border:Border(top:BorderSide(color:Color(0xFF2A2A40)))),child:Row(children:[Expanded(child:Container(decoration:BoxDecoration(color:const Color(0xFF1E1E2A),borderRadius:BorderRadius.circular(28),border:Border.all(color:const Color(0xFF3A3A5A))),child:TextField(controller:ctrl,style:const TextStyle(color:Colors.white),decoration:const InputDecoration(hintText:'احجي عراقي... مثلا شلونك؟',hintStyle:TextStyle(color:Colors.white54),border:InputBorder.none,contentPadding:EdgeInsets.symmetric(horizontal:20,vertical:14)),onSubmitted:(_)=>send()))),const SizedBox(width:10),Container(decoration:const BoxDecoration(color:Colors.deepPurple,shape:BoxShape.circle),child:IconButton(onPressed:send,icon:const Icon(Icons.send_rounded,color:Colors.white)))]))
-                ])
-              );
-            }
+            @override void initState(){super.initState(); final model=GenerativeModel(model:'gemini-2.0-flash',apiKey:GEMINI_API_KEY.isEmpty?'test':GEMINI_API_KEY, systemInstruction:Content.text('انت IraqAI، تحجي عراقي بغدادي اصلي، مضحك ومفيد، جاوب باللهجة العراقية دائما')); chat=model.startChat();}
+            void send() async{ if(ctrl.text.trim().isEmpty) return; final q=ctrl.text; setState((){msgs.add({"role":"user","text":q}); loading=true;}); ctrl.clear(); try{final r=await chat.sendMessage(Content.text(q)); setState(()=>msgs.add({"role":"ai","text":r.text??''}));}catch(e){setState(()=>msgs.add({"role":"ai","text":"⚠️ خطأ: ${e.toString().contains('not found')?'الموديل تحدث، جاري الاصلاح':e}\nتأكد من الانترنت والمفتاح"}));} setState(()=>loading=false);}
+            @override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(backgroundColor:const Color(0xFF1A1A2E),title:const Text('دردشة عراقية')),body:Column(children:[Expanded(child:ListView.builder(padding:const EdgeInsets.all(16),itemCount:msgs.length,itemBuilder:(c,i){final m=msgs[i];final isU=m['role']=='user';return Align(alignment:isU?Alignment.centerRight:Alignment.centerLeft,child:Container(margin:const EdgeInsets.symmetric(vertical:5),padding:const EdgeInsets.all(14),constraints:BoxConstraints(maxWidth:MediaQuery.of(c).size.width*0.8),decoration:BoxDecoration(color:isU?Colors.deepPurple:const Color(0xFF1E1E2A),borderRadius:BorderRadius.circular(18)),child:Text(m['text']!)));})), if(loading) const LinearProgressIndicator(), Padding(padding:const EdgeInsets.all(12),child:Row(children:[Expanded(child:TextField(controller:ctrl,decoration:InputDecoration(hintText:'احجي عراقي...',filled:true,fillColor:const Color(0xFF1E1E2A),border:OutlineInputBorder(borderRadius:BorderRadius.circular(28),borderSide:BorderSide.none)),onSubmitted:(_)=>send())),const SizedBox(width:8),CircleAvatar(backgroundColor:Colors.deepPurple,child:IconButton(icon:const Icon(Icons.send),onPressed:send))]))]));
           }
+          class EarnPage extends StatelessWidget{const EarnPage({super.key});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('الأرباح')),body:ListView(padding:const EdgeInsets.all(16),children:[Container(padding:const EdgeInsets.all(20),decoration:BoxDecoration(gradient:const LinearGradient(colors:[Color(0xFF10B981),Color(0xFF059669)]),borderRadius:BorderRadius.circular(20)),child:Column(children:[const Text('رصيدك الحالي',style:TextStyle(color:Colors.white70)),const Text('12,450 د.ع',style:TextStyle(fontSize:32,fontWeight:FontWeight.bold)),const SizedBox(height:10),ElevatedButton(onPressed:(){},child:const Text('سحب الرصيد'))])),const SizedBox(height:16),_task('🎬 شاهد اعلان','+500 د.ع',0.7),_task('✅ تسجيل يومي','+1000 د.ع',1.0),_task('👥 دعوة صديق','+2000 د.ع',0.3)]));}
+          Widget _task(String t,String r,double p)=>Container(margin:const EdgeInsets.only(bottom:12),padding:const EdgeInsets.all(16),decoration:BoxDecoration(color:const Color(0xFF1E1E2A),borderRadius:BorderRadius.circular(16)),child:Column(children:[Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,children:[Text(t,style:const TextStyle(fontWeight:FontWeight.bold)),Container(padding:const EdgeInsets.symmetric(horizontal:8,vertical:4),decoration:BoxDecoration(color:Colors.green.withOpacity(0.2),borderRadius:BorderRadius.circular(10)),child:Text(r,style:const TextStyle(color:Colors.green)))]),const SizedBox(height:8),LinearProgressIndicator(value:p,color:Colors.deepPurple)]));
+          class ProfilePage extends StatelessWidget{const ProfilePage({super.key});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:const Text('حسابي')),body:ListView(padding:const EdgeInsets.all(16),children:[Center(child:Column(children:[CircleAvatar(radius:40,backgroundColor:Colors.deepPurple,child:const Text('إ',style:TextStyle(fontSize:30))),const SizedBox(height:10),const Text('إبراهيم الجواد',style:TextStyle(fontSize:20,fontWeight:FontWeight.bold)),Container(padding:const EdgeInsets.symmetric(horizontal:10,vertical:4),decoration:BoxDecoration(color:Colors.amber.withOpacity(0.2),borderRadius:BorderRadius.circular(10)),child:const Text('⭐ Premium',style:TextStyle(color:Colors.amber)))])),const SizedBox(height:20), ListTile(leading:const Icon(Icons.settings),title:const Text('الاعدادات'),onTap:(){}), ListTile(leading:const Icon(Icons.share),title:const Text('مشاركة التطبيق'),onTap:(){}), ListTile(leading:const Icon(Icons.star),title:const Text('قيمنا'),onTap:(){})]));}
           DART
           cat > pubspec.yaml << 'YAML'
           name: iraqai_chat
-          description: IraqAI Chat+ Premium
+          description: IraqAI Chat+ Full
           publish_to: 'none'
-          version: 1.0.0+9
+          version: 1.0.0+10
           environment:
             sdk: '>=3.0.0 <4.0.0'
           dependencies:
@@ -85,5 +63,5 @@ jobs:
       - run: flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
       - uses: actions/upload-artifact@v4
         with:
-          name: iraqai-apk-final
+          name: iraqai-apk-full-v10
           path: build/app/outputs/flutter-apk/app-release.apk
