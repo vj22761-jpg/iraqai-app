@@ -1,0 +1,1 @@
+import 'package:flutter/material.dart';class ChannelsScreen extends StatelessWidget{const ChannelsScreen({super.key});@override Widget build(BuildContext c){return Scaffold(appBar:AppBar(title:const Text('القنوات')),body:ListView(children:const[ListTile(title:Text('قناة التقنية')),ListTile(title:Text('قناة الرياضة')),ListTile(title:Text('قناة الطبخ'))]));}}
