@@ -1,1 +1,1 @@
-import 'package:flutter/material.dart';class ProfileScreen extends StatelessWidget{const ProfileScreen({super.key});@override Widget build(BuildContext c){return Scaffold(appBar:AppBar(title:const Text('حسابي')),body:const ListTile(title:Text('Ibrahim Al-Sudani'),subtitle:Text('الباقة المجانية')));}}
+Import 'Package:Flutter/Material.Dart'; Class ProfileScreen Extends StatelessWidget{Const ProfileScreen({Super.Key});@Override Widget Build(BuildContext C){Return Scaffold(AppBar:AppBar(Title:Text('Profile')),Body:Const Center(Child:Text('IraqAI')));}} 

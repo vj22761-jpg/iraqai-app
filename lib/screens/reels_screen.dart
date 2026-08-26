@@ -1,1 +1,1 @@
-import 'package:flutter/material.dart';class ReelsScreen extends StatelessWidget{const ReelsScreen({super.key});@override Widget build(BuildContext c){return Scaffold(appBar:AppBar(title:const Text('ريلز')),body:const Center(child:Text('فيديوهات مع ارباح - قريبا')));}}
+Import 'Package:Flutter/Material.Dart'; Class ReelsScreen Extends StatelessWidget{Const ReelsScreen({Super.Key});@Override Widget Build(BuildContext C){Return Scaffold(AppBar:AppBar(Title:Text('Reels')),Body:Const Center(Child:Text('IraqAI')));}} 
